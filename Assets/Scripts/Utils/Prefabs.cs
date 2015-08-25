@@ -8,13 +8,13 @@ namespace Assets.Scripts.Utils
         public GameObject CreatePrefab;
         public GameObject FoodPrefab;
 
-        public static Prefabs Instance { get; private set; }
+        public static Prefabs Instance { get; set; }
 
-        public void Awake()
+        void Awake()
         {
             Instance = this;
         }
-        
+
         public static GameObject CreateGameObject<T>(T type) where T : Object
         {
             if (type == null) Debug.LogError("Assigned Prefab missing. (Inspector)");
