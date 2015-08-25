@@ -1,14 +1,16 @@
 ﻿using System.Collections.Generic;
+using Assets.Scripts.Utils;
 using UnityEngine;
 
 namespace Assets.Scripts
 {
     public class Creature : MonoBehaviour
     {
-        public double Life = 100;
-        public int Angle = 0;
-        public int Fitness = 0;
+        public double Life;
+        public int Angle;
+        public int Fitness;
         public double LifeCost = 15;
+        public int Generation;
 
         public NeuralNetwork.NeuralNetwork Brain = new NeuralNetwork.NeuralNetwork();
 
@@ -27,19 +29,35 @@ namespace Assets.Scripts
                 GetComponent<SpriteRenderer>().enabled = false;
                 return this;
             }
-                
+
             Life -= LifeCost;
 
             return this;
         }
 
-        public Creature SpawnIn(Bounds bounds)
+        public Creature SpawnIn(Bounds bounds, int generation)
         {
+            name = "Create [" + generation + "]";
+            Generation = generation;
+            transform.SetParent(GameObject.Find("Population").transform, true);
             Bounds = bounds;
-            Angle = Random.Range(0, 360);
+            Init();
             transform.position = new Vector2(Random.Range(Bounds.min.x, Bounds.max.x), Random.Range(Bounds.min.y, Bounds.max.y));
             // transform.Rotate(Angle);
             return this;
+        }
+
+        public void Init()
+        {
+            GetComponent<SpriteRenderer>().enabled = true;
+            Life = 100;
+            Fitness = 0;
+            Angle = Random.Range(0, 360);
+        }
+
+        public void Kill()
+        {
+            Destroy(gameObject);
         }
     }
 }

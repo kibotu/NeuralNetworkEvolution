@@ -26,7 +26,18 @@ namespace Assets.Scripts
             MutationChance = mutationChance;
         }
 
-        public void Evolve(List<Creature> creatures, Bounds bounds)
+        public List<Creature> SpawnInitialPopulation(int amount, Bounds bounds)
+        {
+            NextGeneration = new List<Creature>(amount);
+            for (var i = 0; i < amount; ++i)
+            {
+                NextGeneration.Add(Prefabs.CreateCreature().SpawnIn(bounds, Generation));
+            }
+            Generation++;
+            return NextGeneration;
+        }
+
+        public List<Creature> Evolve(List<Creature> creatures, Bounds bounds)
         {
             NextGeneration = new List<Creature>();
 
@@ -34,20 +45,49 @@ namespace Assets.Scripts
             Elitism(creatures);
             CrossOver(creatures, bounds);
             Mutation();
-            CopyCreatures(creatures);
+
+            KillParents(creatures);
+            InitNextGeneration();
 
             Generation++;
-
-            NextGeneration.Clear();
+            
+            return NextGeneration;
         }
 
-        private void CopyCreatures(List<Creature> creatures)
+        private void InitNextGeneration()
         {
+            foreach (var creature in NextGeneration)
+            {
+                creature.Init();
+            }
+        }
+
+        private void KillParents(IEnumerable<Creature> oldGeneration)
+        {
+            foreach (var oldGen in oldGeneration)
+            {
+                var survived = false;
+                var gen = oldGen;
+                foreach (var nextGen in NextGeneration.Where(nextGen => nextGen.GetInstanceID() == gen.GetInstanceID()))
+                {
+                    survived = true;
+                }
+
+                if(!survived)
+                    oldGen.Kill();
+            }
         }
 
         private void Mutation()
         {
-                
+            foreach (var creature in NextGeneration)
+            {
+                if (!(Random.Range(0, 100) < MutationChance)) continue;
+                var mutationPoint = Random.Range(0, creature.Brain.DendritesCount());
+                var weights = creature.Brain.GetWeights();
+                weights[mutationPoint] = Random.Range(0f, 1f);
+                creature.Brain.SetWeights(weights);
+            }
         }
 
         private void CrossOver(ICollection<Creature> creatures, Bounds bounds)
@@ -72,7 +112,7 @@ namespace Assets.Scripts
                         : motherWeights[k];
                 }
 
-                var child = Prefabs.CreateCreature().SpawnIn(bounds);
+                var child = Prefabs.CreateCreature().SpawnIn(bounds, Generation);
                 child.Brain.SetWeights(childWeights);
                 NextGeneration.Add(child);
             }
@@ -87,8 +127,8 @@ namespace Assets.Scripts
         private void Elitism(List<Creature> creatures)
         {
             creatures = creatures.OrderByDescending(creature => creature.Fitness).ToList();
-            var nrOfElites = (int)(creatures.Count() * (ElitismChance / 100));
-            for (var i = 0; i < nrOfElites; i++)
+            var amountElites = (int)(creatures.Count() * (ElitismChance / 100));
+            for (var i = 0; i < amountElites; i++)
                 NextGeneration.Add(creatures[i]);
         }
 

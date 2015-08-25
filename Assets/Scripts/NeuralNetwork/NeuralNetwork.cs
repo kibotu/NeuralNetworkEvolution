@@ -11,7 +11,7 @@ namespace Assets.Scripts.NeuralNetwork
 
         public double[] GetWeights()
         {
-            return null;
+            return new double[2];
         }
 
         public double BipolarSigmoid(double x)
@@ -22,6 +22,11 @@ namespace Assets.Scripts.NeuralNetwork
         public void SetWeights(double[] childWeights)
         {
             
+        }
+
+        public int DendritesCount()
+        {
+            return 0;
         }
     }
 }

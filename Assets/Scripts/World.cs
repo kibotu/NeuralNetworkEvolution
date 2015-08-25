@@ -7,9 +7,6 @@ namespace Assets.Scripts
 {
     public class World : MonoBehaviour
     {
-        public Transform PopulationParent;
-        public Transform FoodSupplyParent;
-       
         public Bounds Bounds;
         public int InitialPopulation = 10;
         public int InitialFoodSupply = 10;
@@ -28,24 +25,18 @@ namespace Assets.Scripts
         private void SpawnInitialPopulationAndFoodSupply()
         {
             // spawn initial population
-            _creatures = new List<Creature>(InitialPopulation);
-            for (var i = 0; i < InitialPopulation; ++i)
-            {
-                var creature = Prefabs.CreateCreature();
-                creature.transform.SetParent(PopulationParent, true);
-                creature.SpawnIn(Bounds);
-                _creatures.Add(creature);
-            }
+            _creatures = GeneticAlgorythm.SpawnInitialPopulation(InitialPopulation, Bounds);
 
             // spawn initial food supply
             _foodSupply = new List<Food>(InitialFoodSupply);
             for (var i = 0; i < InitialFoodSupply; ++i)
             {
                 var food = Prefabs.CreateFood();
-                food.transform.SetParent(FoodSupplyParent, true);
                 food.SpawnIn(Bounds);
                 _foodSupply.Add(food);
             }
+
+            name = "World [" + _creatures.Count + "]";
         }
 
         private float _startTime;
@@ -64,7 +55,6 @@ namespace Assets.Scripts
             else
                 return;
 
-
             ++Ticks;
 
             foreach (var creature in _creatures)
@@ -77,7 +67,7 @@ namespace Assets.Scripts
             if (Ticks == 10000 || AmountDeathCreatures == _creatures.Count)
             {
                 Ticks = 0;
-                GeneticAlgorythm.Evolve(_creatures, Bounds);
+                _creatures = GeneticAlgorythm.Evolve(_creatures, Bounds);
             }
         }
 
