@@ -1,6 +1,5 @@
-﻿using System;
-using UnityEngine;
-using Random = System.Random;
+﻿using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Assets.Sources
 {
@@ -8,8 +7,7 @@ namespace Assets.Sources
 
         public void SpawnIn(Bounds bounds)
         {
-            var random= new Random(Guid.NewGuid().GetHashCode());
-            transform.position = new Vector2(random.Next((int)bounds.min.x, (int)bounds.max.x), random.Next((int)bounds.min.y, (int)bounds.max.y));
+            transform.position = new Vector2(Random.Range(bounds.min.x, bounds.max.x), Random.Range(bounds.min.y, bounds.max.y));
         }
     }
 }

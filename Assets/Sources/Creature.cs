@@ -1,40 +1,44 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using Random = System.Random;
+using Random = UnityEngine.Random;
 
 namespace Assets.Sources
 {
     public class Creature : MonoBehaviour
     {
-        [SerializeField]
-        private int Life;
-        [SerializeField]
-        private int Angle;
-        [SerializeField]
-        private int Fitness;
+        public double Life = 100;
+        public int Angle = 0;
+        public int Fitness = 0;
+        public double LifeCost = 15;
 
-        private Random Random { get; set; }
+        public NeuralNetwork.NeuralNetwork Brain = new NeuralNetwork.NeuralNetwork();
 
         public Bounds Bounds { get; set; }
+        public double ParentChance;
 
         public bool IsDeath()
         {
             return Life <= 0;
         }
 
-        public void Live(ArrayList foodSupply)
+        public void Live(List<Food> foodSupply)
         {
             if (IsDeath())
+            {
+                GetComponent<SpriteRenderer>().enabled = false;
                 return;
+            }
+                
+            Life -= LifeCost;
         }
 
         public void SpawnIn(Bounds bounds)
         {
             Bounds = bounds;
-            Random = new Random(Guid.NewGuid().GetHashCode());
-            Angle = Random.Next(0, 360);
-            transform.position = new Vector2(Random.Next((int)Bounds.min.x, (int)Bounds.max.x), Random.Next((int)Bounds.min.y, (int)Bounds.max.y));
+            Angle = Random.Range(0, 360);
+            transform.position = new Vector2(Random.Range(Bounds.min.x, Bounds.max.x), Random.Range(Bounds.min.y, Bounds.max.y));
             // transform.Rotate(Angle);
         }
     }
