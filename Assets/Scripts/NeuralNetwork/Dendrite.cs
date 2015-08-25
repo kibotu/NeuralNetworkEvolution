@@ -3,7 +3,7 @@
 namespace Assets.Scripts.NeuralNetwork
 {
     [Serializable]
-    public class Dendrite
+    public struct Dendrite
     {
         public double Weight;
     }

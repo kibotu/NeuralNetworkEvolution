@@ -3,7 +3,7 @@
 namespace Assets.Scripts.NeuralNetwork
 {
     [Serializable]
-    public class Neuron
+    public struct Neuron
     {
         public Dendrite[] Dedrites;
         public double Bias;

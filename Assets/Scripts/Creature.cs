@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Assets.Scripts.Utils;
+using Assets.Scripts.NeuralNetwork;
 using UnityEngine;
 
 namespace Assets.Scripts
@@ -12,7 +12,7 @@ namespace Assets.Scripts
         public double LifeCost = 15;
         public int Generation;
 
-        public NeuralNetwork.NeuralNetwork Brain = new NeuralNetwork.NeuralNetwork();
+        public NeuralNetwork.NeuralNetwork Brain;
 
         public Bounds Bounds { get; set; }
         public double ParentChance;
@@ -32,7 +32,7 @@ namespace Assets.Scripts
 
             Life -= LifeCost;
 
-            var input = new NeuralNetwork.SensoryInput();
+            var input = new SensoryInput();
 
             var closestFoodLeft = 1;
             var closestFoodRight = 0;
@@ -68,6 +68,7 @@ namespace Assets.Scripts
         public Creature SpawnIn(Bounds bounds, int generation)
         {
             name = "Create [" + generation + "]";
+            Brain = new NeuralNetwork.NeuralNetwork(0, 4, 250, 3);
             Generation = generation;
             transform.SetParent(GameObject.Find("Population").transform, true);
             Bounds = bounds;

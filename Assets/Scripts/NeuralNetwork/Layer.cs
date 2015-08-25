@@ -3,7 +3,7 @@
 namespace Assets.Scripts.NeuralNetwork
 {
     [Serializable]
-    public class Layer
+    public struct Layer
     {
         public Neuron[] Neurons;
     }
