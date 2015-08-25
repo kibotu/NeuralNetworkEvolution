@@ -21,12 +21,17 @@ namespace Assets.Scripts.NeuralNetwork
 
         public void SetWeights(double[] childWeights)
         {
-            
+                
         }
 
         public int DendritesCount()
         {
             return 0;
+        }
+
+        public NeuralOutput Think(SensoryInput input)
+        {
+            return new NeuralOutput{Left = 15, Right = 0.1, Speed = 0.1};
         }
     }
 }

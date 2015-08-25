@@ -7,7 +7,7 @@ namespace Assets.Scripts
 {
     public class World : MonoBehaviour
     {
-        public Bounds Bounds;
+        public Bounds Bounds = new Bounds(Vector3.zero, new Vector3(20,20,20));
         public int InitialPopulation = 10;
         public int InitialFoodSupply = 10;
         private List<Creature> _creatures;
@@ -39,18 +39,17 @@ namespace Assets.Scripts
             name = "World [" + _creatures.Count + "]";
         }
 
-        private float _startTime;
-        private const float SecondsPerTick = 1;
+        public float CurrentTickTime;
+        public float SecondsPerTick = 1;
         public float TotalTime;
-        public float MeasuredTotalTime;
 
         void Update ()
         {
             TotalTime = Time.time;
-            _startTime += Time.deltaTime;
-            if (_startTime >= SecondsPerTick)
+            CurrentTickTime += Time.deltaTime;
+            if (CurrentTickTime >= SecondsPerTick)
             {
-                _startTime = SecondsPerTick - _startTime;
+                CurrentTickTime = SecondsPerTick - CurrentTickTime;
             }
             else
                 return;

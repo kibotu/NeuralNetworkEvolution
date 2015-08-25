@@ -7,7 +7,7 @@ namespace Assets.Scripts
     public class Creature : MonoBehaviour
     {
         public double Life;
-        public int Angle;
+        public float Angle;
         public int Fitness;
         public double LifeCost = 15;
         public int Generation;
@@ -31,6 +31,36 @@ namespace Assets.Scripts
             }
 
             Life -= LifeCost;
+
+            var input = new NeuralNetwork.SensoryInput();
+
+            var closestFoodLeft = 1;
+            var closestFoodRight = 0;
+
+            if (closestFoodLeft > closestFoodRight)
+            {
+                input.Left = 1;
+                input.Right = -1;
+            }
+            else
+            {
+                input.Left = -1;
+                input.Right = 1;
+            }
+
+            input.Angle = 0;
+            input.Speed = 0;
+
+            var output = Brain.Think(input);
+
+            if (output.Left > output.Right)
+                Angle += (float)output.Left;
+            else
+                Angle -= (float)output.Right;
+
+            transform.rotation = Quaternion.Euler(new Vector3(0, 0, Angle));
+
+            transform.position += transform.up * (float)output.Speed;
 
             return this;
         }
