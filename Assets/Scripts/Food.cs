@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace Assets.Sources
+namespace Assets.Scripts
 {
     public class Food  : MonoBehaviour {
 

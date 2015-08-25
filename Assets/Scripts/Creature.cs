@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
-namespace Assets.Sources
+namespace Assets.Scripts
 {
     public class Creature : MonoBehaviour
     {
@@ -23,23 +20,26 @@ namespace Assets.Sources
             return Life <= 0;
         }
 
-        public void Live(List<Food> foodSupply)
+        public Creature Live(List<Food> foodSupply)
         {
             if (IsDeath())
             {
                 GetComponent<SpriteRenderer>().enabled = false;
-                return;
+                return this;
             }
                 
             Life -= LifeCost;
+
+            return this;
         }
 
-        public void SpawnIn(Bounds bounds)
+        public Creature SpawnIn(Bounds bounds)
         {
             Bounds = bounds;
             Angle = Random.Range(0, 360);
             transform.position = new Vector2(Random.Range(Bounds.min.x, Bounds.max.x), Random.Range(Bounds.min.y, Bounds.max.y));
             // transform.Rotate(Angle);
+            return this;
         }
     }
 }

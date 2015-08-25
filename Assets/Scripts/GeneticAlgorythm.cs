@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.Utils;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
-namespace Assets.Sources
+namespace Assets.Scripts
 {
     [Serializable]  
     public class GeneticAlgorythm
@@ -48,7 +50,7 @@ namespace Assets.Sources
                 
         }
 
-        private void CrossOver(List<Creature> creatures, Bounds bounds)
+        private void CrossOver(ICollection<Creature> creatures, Bounds bounds)
         {
             var amountCrossOver = (int) (creatures.Count*CrossOverChance/100);
             for (var i = 0; i < amountCrossOver; ++i)
@@ -56,14 +58,30 @@ namespace Assets.Sources
                 var father = Selection();
                 var mother = Selection();
 
-                double[] fatherWeights = father.Brain.GetWeights();
-                double[] motherWeights = mother.Brain.GetWeights();
+                var fatherWeights = father.Brain.GetWeights();
+                var motherWeights = mother.Brain.GetWeights();
+
+                var childWeights = new double[fatherWeights.Length];
+
+                var crossOverPoint = Random.Range(0, fatherWeights.Length);
+
+                for (var k = 0; k < childWeights.Length; ++k)
+                {
+                    childWeights[k] = k < crossOverPoint 
+                        ? fatherWeights[k] 
+                        : motherWeights[k];
+                }
+
+                var child = Prefabs.CreateCreature().SpawnIn(bounds);
+                child.Brain.SetWeights(childWeights);
+                NextGeneration.Add(child);
             }
         }
 
         private Creature Selection()
         {
-            return null;
+            var parentThreshold = Random.Range(0, 100);
+            return NextGeneration.FirstOrDefault(creature => creature.ParentChance > parentThreshold);
         }
 
         private void Elitism(List<Creature> creatures)

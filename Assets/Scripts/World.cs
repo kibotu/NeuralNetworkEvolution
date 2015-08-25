@@ -1,13 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.Utils;
 using UnityEngine;
 
-namespace Assets.Sources
+namespace Assets.Scripts
 {
     public class World : MonoBehaviour
     {
-        public Prefabs Prefabs;
         public Transform PopulationParent;
         public Transform FoodSupplyParent;
        
@@ -32,7 +31,7 @@ namespace Assets.Sources
             _creatures = new List<Creature>(InitialPopulation);
             for (var i = 0; i < InitialPopulation; ++i)
             {
-                var creature = Instantiate(Prefabs.CreatePrefab).GetComponent<Creature>();
+                var creature = Prefabs.CreateCreature();
                 creature.transform.SetParent(PopulationParent, true);
                 creature.SpawnIn(Bounds);
                 _creatures.Add(creature);
@@ -42,7 +41,7 @@ namespace Assets.Sources
             _foodSupply = new List<Food>(InitialFoodSupply);
             for (var i = 0; i < InitialFoodSupply; ++i)
             {
-                var food = Instantiate(Prefabs.FoodPrefab).GetComponent<Food>();
+                var food = Prefabs.CreateFood();
                 food.transform.SetParent(FoodSupplyParent, true);
                 food.SpawnIn(Bounds);
                 _foodSupply.Add(food);
