@@ -7,18 +7,21 @@ namespace Assets.Scripts
 {
     public class World : MonoBehaviour
     {
-        public Bounds Bounds = new Bounds(Vector3.zero, new Vector3(20,20,20));
-        public int InitialPopulation = 10;
-        public int InitialFoodSupply = 10;
         private List<Creature> _creatures;
         private List<Food> _foodSupply;
-        public int Ticks;
         public int AmountDeathCreatures;
+        public Bounds Bounds = new Bounds(Vector3.zero, new Vector3(20, 20, 20));
+        public float CurrentTickTime;
         public GeneticAlgorythm GeneticAlgorythm;
+        public int InitialFoodSupply = 10;
+        public int InitialPopulation = 10;
+        public float SecondsPerTick = 1;
+        public int Ticks;
+        public float TotalTime;
 
-        void Start ()
+        private void Start()
         {
-            GeneticAlgorythm = new GeneticAlgorythm(60,1);
+            GeneticAlgorythm = new GeneticAlgorythm(60, 1);
             SpawnInitialPopulationAndFoodSupply();
         }
 
@@ -39,11 +42,7 @@ namespace Assets.Scripts
             name = "World [" + _creatures.Count + "]";
         }
 
-        public float CurrentTickTime;
-        public float SecondsPerTick = 1;
-        public float TotalTime;
-
-        void Update ()
+        private void Update()
         {
             TotalTime = Time.time;
             CurrentTickTime += Time.deltaTime;

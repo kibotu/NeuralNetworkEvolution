@@ -6,16 +6,14 @@ namespace Assets.Scripts
 {
     public class Creature : MonoBehaviour
     {
-        public double Life;
         public float Angle;
-        public int Fitness;
-        public double LifeCost = 15;
-        public int Generation;
-
         public NeuralNetwork.NeuralNetwork Brain;
-
-        public Bounds Bounds { get; set; }
+        public int Fitness;
+        public int Generation;
+        public double Life;
+        public double LifeCost = 15;
         public double ParentChance;
+        public Bounds Bounds { get; set; }
 
         public bool IsDeath()
         {
@@ -30,7 +28,7 @@ namespace Assets.Scripts
                 return this;
             }
 
-            Life -= LifeCost * Time.deltaTime;
+            Life -= LifeCost*Time.deltaTime;
 
             SensoryInput input;
             input.Values = new double[4];
@@ -55,13 +53,13 @@ namespace Assets.Scripts
             var output = Brain.Think(input);
 
             if (output.Values[0] > output.Values[1])
-                Angle += (float)output.Values[0];
+                Angle += (float) output.Values[0];
             else
-                Angle -= (float)output.Values[1];
+                Angle -= (float) output.Values[1];
 
             transform.rotation = Quaternion.Euler(new Vector3(0, 0, Angle));
 
-            transform.position += transform.up * (float)output.Values[2] * Time.deltaTime;
+            transform.position += transform.up*(float) output.Values[2]*Time.deltaTime;
 
             ClampToBounds();
 
@@ -84,9 +82,10 @@ namespace Assets.Scripts
             Generation = generation;
             transform.SetParent(GameObject.Find("Population").transform, true);
             Bounds = bounds;
+            transform.rotation = Quaternion.Euler(new Vector3(0, 0, Angle));
             Init();
-            transform.position = new Vector2(Random.Range(Bounds.min.x, Bounds.max.x), Random.Range(Bounds.min.y, Bounds.max.y));
-            // transform.Rotate(Angle);
+            transform.position = new Vector2(Random.Range(Bounds.min.x, Bounds.max.x),
+                Random.Range(Bounds.min.y, Bounds.max.y));
             return this;
         }
 

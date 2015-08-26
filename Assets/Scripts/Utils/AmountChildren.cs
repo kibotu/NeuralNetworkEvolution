@@ -5,8 +5,8 @@ namespace Assets.Scripts.Utils
     public class AmountChildren : MonoBehaviour
     {
         public int ChildrenCount;
-	
-        void Update ()
+
+        private void Update()
         {
             ChildrenCount = GetComponentInChildren<Transform>().childCount;
         }

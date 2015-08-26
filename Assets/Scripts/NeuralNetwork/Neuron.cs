@@ -5,9 +5,9 @@ namespace Assets.Scripts.NeuralNetwork
     [Serializable]
     public struct Neuron
     {
-        public Dendrite[] Dendrite;
         public double Bias;
-        public double Value;
         public double Delta;
+        public Dendrite[] Dendrite;
+        public double Value;
     }
 }

@@ -7,16 +7,15 @@ using Random = UnityEngine.Random;
 
 namespace Assets.Scripts
 {
-    [Serializable]  
+    [Serializable]
     public class GeneticAlgorythm
     {
-        public int Generation;
-        public double ElitismChance;
-        public double CrossOverChance;
-        public double MutationChance;
         public double AverageFitness;
+        public double CrossOverChance;
+        public double ElitismChance;
+        public int Generation;
         public double HighestFitness;
-
+        public double MutationChance;
         public List<Creature> NextGeneration;
 
         public GeneticAlgorythm(double crossOverChance, double mutationChance)
@@ -50,7 +49,7 @@ namespace Assets.Scripts
             InitNextGeneration();
 
             Generation++;
-            
+
             return NextGeneration;
         }
 
@@ -73,7 +72,7 @@ namespace Assets.Scripts
                     survived = true;
                 }
 
-                if(!survived)
+                if (!survived)
                     oldGen.Kill();
             }
         }
@@ -107,8 +106,8 @@ namespace Assets.Scripts
 
                 for (var k = 0; k < childWeights.Length; ++k)
                 {
-                    childWeights[k] = k < crossOverPoint 
-                        ? fatherWeights[k] 
+                    childWeights[k] = k < crossOverPoint
+                        ? fatherWeights[k]
                         : motherWeights[k];
                 }
 
@@ -127,7 +126,7 @@ namespace Assets.Scripts
         private void Elitism(List<Creature> creatures)
         {
             creatures = creatures.OrderByDescending(creature => creature.Fitness).ToList();
-            var amountElites = (int)(creatures.Count() * (ElitismChance / 100));
+            var amountElites = (int) (creatures.Count()*(ElitismChance/100));
             for (var i = 0; i < amountElites; i++)
                 NextGeneration.Add(creatures[i]);
         }

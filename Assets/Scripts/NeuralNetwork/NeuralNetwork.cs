@@ -1,24 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
-using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.NeuralNetwork
 {
     [Serializable]
-    public class NeuralNetwork  {
-
+    public class NeuralNetwork
+    {
         public double Fitness;
-
         public NN Network;
 
         public NeuralNetwork(double learningRate, int inputCount, int hiddenLayerCount, int outputCount)
         {
             Fitness = 0;
             Network.LearningRate = learningRate;
-            BuildInitialNeuralNetwork(new[] {inputCount,hiddenLayerCount,outputCount});
+            BuildInitialNeuralNetwork(new[] {inputCount, hiddenLayerCount, outputCount});
         }
 
         private void BuildInitialNeuralNetwork(IList<int> layers)
@@ -36,7 +33,7 @@ namespace Assets.Scripts.NeuralNetwork
 
                     Network.Layers[layer].Neurons[neuron].Bias = NextRandom();
                     Network.Layers[layer].Neurons[neuron].Dendrite = new Dendrite[layers[layer - 1]];
-                    for (var dendrite = 0; dendrite <  Network.Layers[layer].Neurons[neuron].Dendrite.Length; dendrite++)
+                    for (var dendrite = 0; dendrite < Network.Layers[layer].Neurons[neuron].Dendrite.Length; dendrite++)
                     {
                         Network.Layers[layer].Neurons[neuron].Dendrite[dendrite].Weight = NextRandom();
                     }
@@ -46,7 +43,7 @@ namespace Assets.Scripts.NeuralNetwork
 
         private static double NextRandom()
         {
-            return Random.Range(1f,2f);
+            return Random.Range(1f, 2f);
         }
 
         public double[] GetWeights()
@@ -56,12 +53,11 @@ namespace Assets.Scripts.NeuralNetwork
 
         public double BipolarSigmoid(double x)
         {
-            return (1 / (1 + Math.Exp(x * -1)));
+            return (1/(1 + Math.Exp(x*-1)));
         }
 
         public void SetWeights(double[] childWeights)
         {
-                
         }
 
         public int DendritesCount()
@@ -80,13 +76,17 @@ namespace Assets.Scripts.NeuralNetwork
                     else
                     {
                         Network.Layers[layer].Neurons[neuron].Value = 0;
-                        for (var dentrite = 0; dentrite < Network.Layers[layer-1].Neurons.Length; ++dentrite)
+                        for (var dentrite = 0; dentrite < Network.Layers[layer - 1].Neurons.Length; ++dentrite)
                         {
-                            Network.Layers[layer].Neurons[neuron].Value = Network.Layers[layer].Neurons[neuron].Value + Network.Layers[layer - 1].Neurons[dentrite].Value * Network.Layers[layer].Neurons[neuron].Dendrite[dentrite].Weight;
+                            Network.Layers[layer].Neurons[neuron].Value = Network.Layers[layer].Neurons[neuron].Value +
+                                                                          Network.Layers[layer - 1].Neurons[dentrite]
+                                                                              .Value*
+                                                                          Network.Layers[layer].Neurons[neuron].Dendrite
+                                                                              [dentrite].Weight;
                         }
-                        Network.Layers[layer].Neurons[neuron].Value = BipolarSigmoid(Network.Layers[layer].Neurons[neuron].Value);
+                        Network.Layers[layer].Neurons[neuron].Value =
+                            BipolarSigmoid(Network.Layers[layer].Neurons[neuron].Value);
                     }
-
                 }
             }
 
@@ -94,7 +94,8 @@ namespace Assets.Scripts.NeuralNetwork
             output.Values = new double[Network.Layers[Network.Layers.Length - 1].Neurons.Length];
             for (var neuron = 0; neuron < output.Values.Length; ++neuron)
             {
-                output.Values[neuron] = Mathf.Clamp((float)Network.Layers[Network.Layers.Length - 1].Neurons[neuron].Value, -1, 1);
+                output.Values[neuron] =
+                    Mathf.Clamp((float) Network.Layers[Network.Layers.Length - 1].Neurons[neuron].Value, -1, 1);
             }
 
             return output;

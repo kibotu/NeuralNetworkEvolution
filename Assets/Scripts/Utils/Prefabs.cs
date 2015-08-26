@@ -1,16 +1,14 @@
 ﻿using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Assets.Scripts.Utils
 {
-    public class Prefabs : MonoBehaviour {
-
+    public class Prefabs : MonoBehaviour
+    {
         public GameObject CreatePrefab;
         public GameObject FoodPrefab;
-
         public static Prefabs Instance { get; set; }
 
-        void Awake()
+        private void Awake()
         {
             Instance = this;
         }
