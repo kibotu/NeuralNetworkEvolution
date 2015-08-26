@@ -45,10 +45,28 @@ namespace Assets.Scripts.NeuralNetwork
         {
             return Random.Range(-1f, 1f);
         }
-
+        
         public double[] GetWeights()
         {
-            return new double[2];
+            var dendriteCount = DendritesCount();
+            var weights = new double[dendriteCount];
+            var counterDendrites = 0;
+
+            for (var layer = 0; layer < Network.Layers.Length; ++layer)
+            {
+                for (var neuron = 0; neuron < Network.Layers[layer].Neurons.Length; ++neuron)
+                {
+                    if (layer == 0) continue;
+
+                    for(var dendrite = 0; dendrite < Network.Layers[layer-1].Neurons.Length; ++dendrite)
+                    {
+                        weights[counterDendrites] = Network.Layers[layer].Neurons[neuron].Dendrite[dendrite].Weight;
+                        counterDendrites++;
+                    }
+                }
+            }
+
+            return weights;
         }
 
         public double BipolarSigmoid(double x)
@@ -62,7 +80,19 @@ namespace Assets.Scripts.NeuralNetwork
 
         public int DendritesCount()
         {
-            return 0;
+            var dendriteCount = 0;
+
+            for (var layer = 0; layer < Network.Layers.Length; ++layer)
+            {
+                for (var neuron = 0; neuron < Network.Layers[layer].Neurons.Length; ++neuron)
+                {
+                    if(layer == 0) continue;
+
+                    dendriteCount += Network.Layers[layer].Neurons[neuron].Dendrite.Length;
+                }
+            }
+
+            return dendriteCount;
         }
 
         public NeuralOutput Think(SensoryInput input)

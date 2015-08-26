@@ -45,7 +45,8 @@ namespace Assets.Scripts
 
             var closestFood = GetClosestFood(foodSupply);
             // could be that food supply is empty or out of reach
-            if(closestFood != null){
+            if (closestFood != null)
+            {
                 var closestFoodLeft = leftSensor.Distance(closestFood);
                 var closestFoodRight = rightSensor.Distance(closestFood);
 
