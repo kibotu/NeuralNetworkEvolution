@@ -14,6 +14,10 @@ namespace Assets.Scripts.Utils
             return Vector3.Distance(target,source);
         }
 
+        public static double Distance(this Vector3 position, Component component)
+        {
+            return Vector3.Distance(position, component.transform.position);
+        }
         public static double Distance(this Vector2 position, Component component)
         {
             return Vector2.Distance(position, component.transform.position);
@@ -48,7 +52,7 @@ namespace Assets.Scripts.Utils
         /// <param name="directionAngle">angle in degree</param>
         /// <param name="length"></param>
         /// <returns></returns>
-        public static Vector2 ExtendedPoint(this Vector3 position, float directionAngle, int length)
+        public static Vector2 ExtendedPoint(this Vector3 position, float directionAngle, float length)
         {
             var radians = directionAngle * Mathf.Deg2Rad;
             return new Vector2(position.x + Mathf.Cos(radians) * length, position.y + Mathf.Sin(radians) * length);

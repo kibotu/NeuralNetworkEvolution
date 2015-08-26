@@ -76,6 +76,22 @@ namespace Assets.Scripts.NeuralNetwork
 
         public void SetWeights(double[] childWeights)
         {
+            var amountDendrites = 0;
+
+            for (var layer = 0; layer < Network.Layers.Length; ++layer)
+            {
+                for (var neuron = 0; neuron < Network.Layers[layer].Neurons.Length; ++neuron)
+                {
+                    if (layer == 0) continue;
+
+                    for (var dendrite = 0; dendrite < Network.Layers[layer - 1].Neurons.Length; ++dendrite)
+                    {
+                        Network.Layers[layer].Neurons[neuron].Dendrite[dendrite].Weight = childWeights[amountDendrites];
+                        ++amountDendrites;
+                    }
+
+                }
+            }
         }
 
         public int DendritesCount()

@@ -2,6 +2,7 @@
 using System.Linq;
 using Assets.Scripts.Utils;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Assets.Scripts
 {
@@ -16,10 +17,13 @@ namespace Assets.Scripts
         public int InitialFoodSupply = 10;
         public int InitialPopulation = 10;
         public float SecondsPerTick = 1;
-        public int Ticks;
+        public int TicksPerGernations = 1000;
+        public int CurrentTick;
         public float TotalTime;
 
-        private void Start()
+        [Range(0,2)] public float Speed = 1;
+
+        public void Start()
         {
             GeneticAlgorythm = new GeneticAlgorythm(60, 1);
             SpawnInitialPopulationAndFoodSupply();
@@ -42,8 +46,10 @@ namespace Assets.Scripts
             name = "World [" + _creatures.Count + "]";
         }
 
-        private void Update()
+        public void Update()
         {
+            Time.timeScale = Speed;
+
             TotalTime = Time.time;
             CurrentTickTime += Time.deltaTime;
             if (CurrentTickTime >= SecondsPerTick)
@@ -53,7 +59,7 @@ namespace Assets.Scripts
             else
                 return;
 
-            ++Ticks;
+            ++CurrentTick;
 
             foreach (var creature in _creatures)
             {
@@ -62,16 +68,16 @@ namespace Assets.Scripts
 
             AmountDeathCreatures = GetAmountOfDeathCreatures();
 
-            if (Ticks == 10000 || AmountDeathCreatures == _creatures.Count)
+            if (CurrentTick == TicksPerGernations || AmountDeathCreatures == _creatures.Count)
             {
-                Ticks = 0;
+                CurrentTick = 0;
                 _creatures = GeneticAlgorythm.Evolve(_creatures, Bounds);
             }
         }
 
         private int GetAmountOfDeathCreatures()
         {
-            return _creatures.Cast<Creature>().Count(creature => creature.IsDeath());
+            return _creatures.Count(creature => creature.IsDeath());
         }
     }
 }

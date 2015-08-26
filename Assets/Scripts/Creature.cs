@@ -12,17 +12,20 @@ namespace Assets.Scripts
         public int Fitness;
         public int Generation;
         public double Life;
-        public double LifeCost = 15;
+        public double LifeCost = 10;
         public double ParentChance;
         public bool ShowAntenna;
         public Bounds Bounds { get; set; }
 
+        public int LearningFactor = 0;
+        public int HiddenLayerCount = 250;
+
         public bool IsDeath()
         {
-            return Life <= 0;
+            return Life <= 0 || gameObject == null;
         }
 
-        public Creature Live(List<Food> foodSupply)
+        public Creature Live(ICollection<Food> foodSupply)
         {
             if (IsDeath())
             {
@@ -30,36 +33,47 @@ namespace Assets.Scripts
                 return this;
             }
 
+            var closestFood = GetClosestFood(foodSupply);
+
+            // could be that food supply is empty or out of reach
+            if (closestFood == null)
+            {
+                Debug.Log("no food found o.O");
+                return this;
+            }
+
+            if (transform.position.Distance(closestFood) < 0.3)
+            {
+                Life += 50;
+                Fitness += 10;
+                closestFood.SpawnIn(Bounds);
+            }
+
             Life -= LifeCost*Time.deltaTime;
 
             SensoryInput input;
             input.Values = new double[4];
 
-            var leftSensor = transform.position.ExtendedPoint(Angle - 45 + 90, 1);
-            var rightSensor = transform.position.ExtendedPoint(Angle + 45 + 90, 1);
+            var leftSensor = transform.position.ExtendedPoint(Angle - 45 + 90, .3f);
+            var rightSensor = transform.position.ExtendedPoint(Angle + 45 + 90, .3f);
             if (ShowAntenna)
             {
                 Debug.DrawLine(transform.position, leftSensor, Color.blue);
                 Debug.DrawLine(transform.position, rightSensor, Color.red);
             }
 
-            var closestFood = GetClosestFood(foodSupply);
-            // could be that food supply is empty or out of reach
-            if (closestFood != null)
-            {
-                var closestFoodLeft = leftSensor.Distance(closestFood);
-                var closestFoodRight = rightSensor.Distance(closestFood);
+            var closestFoodLeft = leftSensor.Distance(closestFood);
+            var closestFoodRight = rightSensor.Distance(closestFood);
 
-                if (closestFoodLeft > closestFoodRight)
-                {
-                    input.Values[0] = 1;
-                    input.Values[1] = -1;
-                }
-                else
-                {
-                    input.Values[0] = -1;
-                    input.Values[1] = 1;
-                }
+            if (closestFoodLeft > closestFoodRight)
+            {
+                input.Values[0] = 1;
+                input.Values[1] = -1;
+            }
+            else
+            {
+                input.Values[0] = -1;
+                input.Values[1] = 1;
             }
             input.Values[2] = 0;
             input.Values[3] = 0;
@@ -81,7 +95,7 @@ namespace Assets.Scripts
 
             transform.position += transform.up*(float) output.Values[2]*Time.deltaTime;
 
-            ClampToBounds();
+//            ClampToBounds();
 
             return this;
         }
@@ -108,11 +122,11 @@ namespace Assets.Scripts
             pos.z = Mathf.Clamp(transform.position.z, Bounds.min.z, Bounds.max.z);
             transform.position = pos;
         }
-
+        
         public Creature SpawnIn(Bounds bounds, int generation)
         {
             name = "Create [" + generation + "]";
-            Brain = new NeuralNetwork.NeuralNetwork(0, 4, 250, 3);
+            Brain = new NeuralNetwork.NeuralNetwork(LearningFactor, 4, HiddenLayerCount, 3);
             Generation = generation;
             transform.SetParent(GameObject.Find("Population").transform, true);
             Bounds = bounds;
