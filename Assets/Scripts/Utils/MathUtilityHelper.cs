@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.Utils
 {
@@ -56,6 +58,10 @@ namespace Assets.Scripts.Utils
         {
             var radians = directionAngle * Mathf.Deg2Rad;
             return new Vector2(position.x + Mathf.Cos(radians) * length, position.y + Mathf.Sin(radians) * length);
-        }   
+        }
+        public static double BipolarSigmoid(double x)
+        {
+            return (1 / (1 + Math.Exp(x * -1)));
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Assets.Scripts.Utils;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -69,11 +70,6 @@ namespace Assets.Scripts.NeuralNetwork
             return weights;
         }
 
-        public double BipolarSigmoid(double x)
-        {
-            return (1/(1 + Math.Exp(x*-1)));
-        }
-
         public void SetWeights(double[] childWeights)
         {
             var amountDendrites = 0;
@@ -131,7 +127,7 @@ namespace Assets.Scripts.NeuralNetwork
                                                                               [dentrite].Weight;
                         }
                         Network.Layers[layer].Neurons[neuron].Value =
-                            BipolarSigmoid(Network.Layers[layer].Neurons[neuron].Value);
+                            MathUtilityHelper.BipolarSigmoid(Network.Layers[layer].Neurons[neuron].Value);
                     }
                 }
             }
@@ -140,8 +136,8 @@ namespace Assets.Scripts.NeuralNetwork
             output.Values = new double[Network.Layers[Network.Layers.Length - 1].Neurons.Length];
             for (var neuron = 0; neuron < output.Values.Length; ++neuron)
             {
-                output.Values[neuron] =
-                    Mathf.Clamp((float) Network.Layers[Network.Layers.Length - 1].Neurons[neuron].Value, -1, 1);
+                output.Values[neuron] = Network.Layers[Network.Layers.Length - 1].Neurons[neuron].Value;
+//                    Mathf.Clamp((float) Network.Layers[Network.Layers.Length - 1].Neurons[neuron].Value, -1, 1);
             }
 
             return output;

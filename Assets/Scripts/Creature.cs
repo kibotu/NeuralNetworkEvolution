@@ -25,6 +25,9 @@ namespace Assets.Scripts
             return Life <= 0 || gameObject == null;
         }
 
+        public SensoryInput Input;
+        public NeuralOutput Output;
+
         public Creature Live(ICollection<Food> foodSupply)
         {
             if (IsDeath())
@@ -38,7 +41,7 @@ namespace Assets.Scripts
             // could be that food supply is empty or out of reach
             if (closestFood == null)
             {
-                Debug.Log("no food found o.O");
+//                Debug.Log("no food found o.O");
                 return this;
             }
 
@@ -51,11 +54,14 @@ namespace Assets.Scripts
 
             Life -= LifeCost*Time.deltaTime;
 
-            SensoryInput input;
-            input.Values = new double[4];
+            if (IsDeath())
+                Fitness -= 50;
 
-            var leftSensor = transform.position.ExtendedPoint(Angle - 45 + 90, .3f);
-            var rightSensor = transform.position.ExtendedPoint(Angle + 45 + 90, .3f);
+           
+            Input.Values = new double[4];
+
+            var leftSensor = transform.position.ExtendedPoint(Angle - 45 + 90, .5f);
+            var rightSensor = transform.position.ExtendedPoint(Angle + 45 + 90, .5f);
             if (ShowAntenna)
             {
                 Debug.DrawLine(transform.position, leftSensor, Color.blue);
@@ -67,35 +73,44 @@ namespace Assets.Scripts
 
             if (closestFoodLeft > closestFoodRight)
             {
-                input.Values[0] = 1;
-                input.Values[1] = -1;
+                Input.Values[0] = closestFoodLeft + closestFoodRight;
+                Input.Values[1] = closestFoodLeft - closestFoodRight;
             }
             else
             {
-                input.Values[0] = -1;
-                input.Values[1] = 1;
+                Input.Values[0] = closestFoodRight - closestFoodLeft;
+                Input.Values[1] = closestFoodRight + closestFoodLeft;
             }
-            input.Values[2] = 0;
-            input.Values[3] = 0;
 
-            var output = Brain.Think(input);
+//            Input.Values[0] = Mathf.Abs((float) closestFoodLeft);
+//            Input.Values[1] = -Mathf.Abs((float)closestFoodLeft);
+//            Input.Values[0] = Mathf.Clamp((float) closestFoodLeft / Bounds.min.x, -1, 1);
+//            Input.Values[1] = Mathf.Clamp((float) closestFoodRight / Bounds.min.x, -1, 1); 
+            Input.Values[2] = 0;
+            Input.Values[3] = 0;
 
-            if (output.Values[0] > output.Values[1])
+            Output = Brain.Think(Input);
+
+            if (Output.Values[0] > Output.Values[1])
             {
-                Angle -= (float) output.Values[0];
+                Angle -= (float)Output.Values[0];
                 Debug.DrawLine(transform.position, leftSensor, Color.blue);
             }
             else
             {
-                Angle += (float) output.Values[1];
+                Angle += (float)Output.Values[1];
                 Debug.DrawLine(transform.position, rightSensor, Color.red);
             }
 
+            // rotate
             transform.rotation = Quaternion.Euler(new Vector3(0, 0, Angle));
 
-            transform.position += transform.up*(float) output.Values[2]*Time.deltaTime;
-
-//            ClampToBounds();
+            // draw speed 
+            var speed = (float)Output.Values[2];
+            Debug.DrawLine(transform.position, transform.position.ExtendedPoint(Angle+90, speed), Color.black);
+            
+            // move
+            transform.position += transform.up * speed * Time.deltaTime;
 
             return this;
         }
@@ -130,15 +145,15 @@ namespace Assets.Scripts
             Generation = generation;
             transform.SetParent(GameObject.Find("Population").transform, true);
             Bounds = bounds;
-            transform.rotation = Quaternion.Euler(new Vector3(0, 0, Angle));
-            Init();
-            transform.position = new Vector2(Random.Range(Bounds.min.x, Bounds.max.x),
-                Random.Range(Bounds.min.y, Bounds.max.y));
+            Init(); 
+            transform.position = new Vector2(Random.Range(Bounds.min.x, Bounds.max.x),Random.Range(Bounds.min.y, Bounds.max.y));
             return this;
         }
 
         public void Init()
         {
+            transform.rotation = Quaternion.Euler(new Vector3(0, 0, Angle));
+          
             GetComponent<SpriteRenderer>().enabled = true;
             Life = 100;
             Fitness = 0;
