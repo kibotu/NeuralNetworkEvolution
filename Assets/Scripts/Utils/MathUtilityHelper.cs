@@ -7,6 +7,16 @@ namespace Assets.Scripts.Utils
         public static Vector3 Direction(this Vector3 source, Vector3 target)
         {
             return (target - source).normalized;
+        }     
+        
+        public static float Distance(this Vector3 source, Vector3 target)
+        {
+            return Vector3.Distance(target,source);
+        }
+
+        public static double Distance(this Vector2 position, Component component)
+        {
+            return Vector2.Distance(position, component.transform.position);
         }
 
         public static float Range(float min, float max, float excludeRangeMin, float excludeRangeMax)
@@ -30,5 +40,18 @@ namespace Assets.Scripts.Utils
             if (angle < 0) angle += 360;
             return angle;
         }
+
+        /// <summary>
+        /// Returns an extended Vector.
+        /// </summary>
+        /// <param name="position">center</param>
+        /// <param name="directionAngle">angle in degree</param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public static Vector2 ExtendedPoint(this Vector3 position, float directionAngle, int length)
+        {
+            var radians = directionAngle * Mathf.Deg2Rad;
+            return new Vector2(position.x + Mathf.Cos(radians) * length, position.y + Mathf.Sin(radians) * length);
+        }   
     }
 }

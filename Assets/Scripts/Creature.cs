@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Assets.Scripts.NeuralNetwork;
+using Assets.Scripts.Utils;
 using UnityEngine;
 
 namespace Assets.Scripts
@@ -13,6 +14,7 @@ namespace Assets.Scripts
         public double Life;
         public double LifeCost = 15;
         public double ParentChance;
+        public bool ShowAntenna;
         public Bounds Bounds { get; set; }
 
         public bool IsDeath()
@@ -33,20 +35,31 @@ namespace Assets.Scripts
             SensoryInput input;
             input.Values = new double[4];
 
-            var closestFoodLeft = 1;
-            var closestFoodRight = 0;
-
-            if (closestFoodLeft > closestFoodRight)
+            var leftSensor = transform.position.ExtendedPoint(Angle - 45 + 90, 1);
+            var rightSensor = transform.position.ExtendedPoint(Angle + 45 + 90, 1);
+            if (ShowAntenna)
             {
-                input.Values[0] = 1;
-                input.Values[1] = -1;
-            }
-            else
-            {
-                input.Values[0] = -1;
-                input.Values[1] = 1;
+                Debug.DrawLine(transform.position, leftSensor, Color.blue);
+                Debug.DrawLine(transform.position, rightSensor, Color.red);
             }
 
+            // could be that food supply is empty or out of reach
+            var closestFood = GetClosestFood(foodSupply);
+            {
+                var closestFoodLeft = leftSensor.Distance(closestFood);
+                var closestFoodRight = rightSensor.Distance(closestFood);
+
+                if (closestFoodLeft > closestFoodRight)
+                {
+                    input.Values[0] = 1;
+                    input.Values[1] = -1;
+                }
+                else
+                {
+                    input.Values[0] = -1;
+                    input.Values[1] = 1;
+                }
+            }
             input.Values[2] = 0;
             input.Values[3] = 0;
 
@@ -64,6 +77,20 @@ namespace Assets.Scripts
             ClampToBounds();
 
             return this;
+        }
+
+        private Food GetClosestFood(IEnumerable<Food> foodSupply)
+        {
+            Food closestFood = null;
+            var closest = Mathf.Abs(Bounds.extents.x);
+            foreach (var food in foodSupply)
+            {
+                var distance = Vector2.Distance(transform.position, food.transform.position);
+                if (!(distance < closest)) continue;
+                closestFood = food;
+                closest = distance;
+            }
+            return closestFood;
         }
 
         private void ClampToBounds()
