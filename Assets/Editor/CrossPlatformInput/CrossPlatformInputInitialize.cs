@@ -24,7 +24,7 @@ namespace UnityStandardAssets.CrossPlatformInput.Inspector
         }
 
 
-        [MenuItem("Mobile Input/Enable")]
+        [MenuItem("Mobile Values/Enable")]
         private static void Enable()
         {
             SetEnabled("MOBILE_INPUT", true, true);
@@ -37,21 +37,21 @@ namespace UnityStandardAssets.CrossPlatformInput.Inspector
 				case BuildTarget.PSM: 
 				case BuildTarget.Tizen: 
 				case BuildTarget.WSAPlayer: 
-                    EditorUtility.DisplayDialog("Mobile Input",
-                                                "You have enabled Mobile Input. You'll need to use the Unity Remote app on a connected device to control your game in the Editor.",
+                    EditorUtility.DisplayDialog("Mobile Values",
+                                                "You have enabled Mobile Values. You'll need to use the Unity Remote app on a connected device to control your game in the Editor.",
                                                 "OK");
                     break;
 
                 default:
-                    EditorUtility.DisplayDialog("Mobile Input",
-                                                "You have enabled Mobile Input, but you have a non-mobile build target selected in your build settings. The mobile control rigs won't be active or visible on-screen until you switch the build target to a mobile platform.",
+                    EditorUtility.DisplayDialog("Mobile Values",
+                                                "You have enabled Mobile Values, but you have a non-mobile build target selected in your build settings. The mobile control rigs won't be active or visible on-screen until you switch the build target to a mobile platform.",
                                                 "OK");
                     break;
             }
         }
 
 
-        [MenuItem("Mobile Input/Enable", true)]
+        [MenuItem("Mobile Values/Enable", true)]
         private static bool EnableValidate()
         {
             var defines = GetDefinesList(mobileBuildTargetGroups[0]);
@@ -59,7 +59,7 @@ namespace UnityStandardAssets.CrossPlatformInput.Inspector
         }
 
 
-        [MenuItem("Mobile Input/Disable")]
+        [MenuItem("Mobile Values/Disable")]
         private static void Disable()
         {
             SetEnabled("MOBILE_INPUT", false, true);
@@ -69,15 +69,15 @@ namespace UnityStandardAssets.CrossPlatformInput.Inspector
                 case BuildTarget.iOS:
                 case BuildTarget.WP8Player:
                 case BuildTarget.BlackBerry:
-                    EditorUtility.DisplayDialog("Mobile Input",
-                                                "You have disabled Mobile Input. Mobile control rigs won't be visible, and the Cross Platform Input functions will always return standalone controls.",
+                    EditorUtility.DisplayDialog("Mobile Values",
+                                                "You have disabled Mobile Values. Mobile control rigs won't be visible, and the Cross Platform Values functions will always return standalone controls.",
                                                 "OK");
                     break;
             }
         }
 
 
-        [MenuItem("Mobile Input/Disable", true)]
+        [MenuItem("Mobile Values/Disable", true)]
         private static bool DisableValidate()
         {
             var defines = GetDefinesList(mobileBuildTargetGroups[0]);

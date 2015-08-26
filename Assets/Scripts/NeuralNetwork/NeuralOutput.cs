@@ -1,9 +1,10 @@
-﻿namespace Assets.Scripts.NeuralNetwork
+﻿using System;
+
+namespace Assets.Scripts.NeuralNetwork
 {
+    [Serializable]
     public struct NeuralOutput
     {
-        public double Left;
-        public double Right;
-        public double Speed;
+        public double[] Values;
     }
 }

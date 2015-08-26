@@ -30,39 +30,51 @@ namespace Assets.Scripts
                 return this;
             }
 
-            Life -= LifeCost;
+            Life -= LifeCost * Time.deltaTime;
 
-            var input = new SensoryInput();
+            SensoryInput input;
+            input.Values = new double[4];
 
             var closestFoodLeft = 1;
             var closestFoodRight = 0;
 
             if (closestFoodLeft > closestFoodRight)
             {
-                input.Left = 1;
-                input.Right = -1;
+                input.Values[0] = 1;
+                input.Values[1] = -1;
             }
             else
             {
-                input.Left = -1;
-                input.Right = 1;
+                input.Values[0] = -1;
+                input.Values[1] = 1;
             }
 
-            input.Angle = 0;
-            input.Speed = 0;
+            input.Values[2] = 0;
+            input.Values[3] = 0;
 
             var output = Brain.Think(input);
 
-            if (output.Left > output.Right)
-                Angle += (float)output.Left;
+            if (output.Values[0] > output.Values[1])
+                Angle += (float)output.Values[0];
             else
-                Angle -= (float)output.Right;
+                Angle -= (float)output.Values[1];
 
             transform.rotation = Quaternion.Euler(new Vector3(0, 0, Angle));
 
-            transform.position += transform.up * (float)output.Speed;
+            transform.position += transform.up * (float)output.Values[2] * Time.deltaTime;
+
+            ClampToBounds();
 
             return this;
+        }
+
+        private void ClampToBounds()
+        {
+            var pos = transform.position;
+            pos.x = Mathf.Clamp(transform.position.x, Bounds.min.x, Bounds.max.x);
+            pos.y = Mathf.Clamp(transform.position.y, Bounds.min.y, Bounds.max.y);
+            pos.z = Mathf.Clamp(transform.position.z, Bounds.min.z, Bounds.max.z);
+            transform.position = pos;
         }
 
         public Creature SpawnIn(Bounds bounds, int generation)

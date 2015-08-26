@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 using Random = UnityEngine.Random;
+using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.NeuralNetwork
 {
@@ -32,10 +35,10 @@ namespace Assets.Scripts.NeuralNetwork
                     if (layer == 0) continue;
 
                     Network.Layers[layer].Neurons[neuron].Bias = NextRandom();
-                    Network.Layers[layer].Neurons[neuron].Dedrites = new Dendrite[layers[layer - 1]];
-                    for (var dendrite = 0; dendrite <  Network.Layers[layer].Neurons[neuron].Dedrites.Length; dendrite++)
+                    Network.Layers[layer].Neurons[neuron].Dendrite = new Dendrite[layers[layer - 1]];
+                    for (var dendrite = 0; dendrite <  Network.Layers[layer].Neurons[neuron].Dendrite.Length; dendrite++)
                     {
-                        Network.Layers[layer].Neurons[neuron].Dedrites[dendrite].Weight = NextRandom();
+                        Network.Layers[layer].Neurons[neuron].Dendrite[dendrite].Weight = NextRandom();
                     }
                 }
             }
@@ -68,7 +71,33 @@ namespace Assets.Scripts.NeuralNetwork
 
         public NeuralOutput Think(SensoryInput input)
         {
-            return new NeuralOutput{Left = 15, Right = 0.1, Speed = 0.1};
+            for (var layer = 0; layer < Network.Layers.Length; ++layer)
+            {
+                for (var neuron = 0; neuron < Network.Layers[layer].Neurons.Length; neuron++)
+                {
+                    if (layer == 0)
+                        Network.Layers[layer].Neurons[neuron].Value = input.Values[neuron];
+                    else
+                    {
+                        Network.Layers[layer].Neurons[neuron].Value = 0;
+                        for (var dentrite = 0; dentrite < Network.Layers[layer-1].Neurons.Length; ++dentrite)
+                        {
+                            Network.Layers[layer].Neurons[neuron].Value = Network.Layers[layer].Neurons[neuron].Value + Network.Layers[layer - 1].Neurons[dentrite].Value * Network.Layers[layer].Neurons[neuron].Dendrite[dentrite].Weight;
+                        }
+                        Network.Layers[layer].Neurons[neuron].Value = BipolarSigmoid(Network.Layers[layer].Neurons[neuron].Value);
+                    }
+
+                }
+            }
+
+            NeuralOutput output;
+            output.Values = new double[Network.Layers[Network.Layers.Length - 1].Neurons.Length];
+            for (var neuron = 0; neuron < output.Values.Length; ++neuron)
+            {
+                output.Values[neuron] = Mathf.Clamp((float)Network.Layers[Network.Layers.Length - 1].Neurons[neuron].Value, -1, 1);
+            }
+
+            return output;
         }
     }
 }
