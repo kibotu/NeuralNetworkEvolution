@@ -43,9 +43,9 @@ namespace Assets.Scripts
                 Debug.DrawLine(transform.position, rightSensor, Color.red);
             }
 
-            // could be that food supply is empty or out of reach
             var closestFood = GetClosestFood(foodSupply);
-            {
+            // could be that food supply is empty or out of reach
+            if(closestFood != null){
                 var closestFoodLeft = leftSensor.Distance(closestFood);
                 var closestFoodRight = rightSensor.Distance(closestFood);
 
@@ -66,9 +66,15 @@ namespace Assets.Scripts
             var output = Brain.Think(input);
 
             if (output.Values[0] > output.Values[1])
-                Angle += (float) output.Values[0];
+            {
+                Angle -= (float) output.Values[0];
+                Debug.DrawLine(transform.position, leftSensor, Color.blue);
+            }
             else
-                Angle -= (float) output.Values[1];
+            {
+                Angle += (float) output.Values[1];
+                Debug.DrawLine(transform.position, rightSensor, Color.red);
+            }
 
             transform.rotation = Quaternion.Euler(new Vector3(0, 0, Angle));
 

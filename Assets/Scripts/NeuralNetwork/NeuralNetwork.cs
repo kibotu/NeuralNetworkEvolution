@@ -43,7 +43,7 @@ namespace Assets.Scripts.NeuralNetwork
 
         private static double NextRandom()
         {
-            return Random.Range(1f, 2f);
+            return Random.Range(-1f, 1f);
         }
 
         public double[] GetWeights()
