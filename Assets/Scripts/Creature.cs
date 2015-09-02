@@ -85,16 +85,7 @@ namespace Assets.Scripts
             Output = Brain.Think(Input);
 
             var angle = (float) Output.Values[0];
-            if (angle <= 0.5)
-            {
-                Angle -= (1 - angle)*2;
-                if (ShowBrainSuggestions) Debug.DrawLine(transform.position, leftSensor, Color.blue);
-            }
-            else
-            {
-                Angle += angle*2;
-                if (ShowBrainSuggestions) Debug.DrawLine(transform.position, rightSensor, Color.red);
-            }
+            Angle += angle*3;
 
             if (Output.Values[0] > Output.Values[1])
             {
