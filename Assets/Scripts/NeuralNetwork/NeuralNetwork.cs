@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Assets.Scripts.Utils;
-using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.NeuralNetwork
@@ -127,7 +126,7 @@ namespace Assets.Scripts.NeuralNetwork
                                                                               [dentrite].Weight;
                         }
                         Network.Layers[layer].Neurons[neuron].Value =
-                            MathUtilityHelper.BipolarSigmoid(Network.Layers[layer].Neurons[neuron].Value);
+                            MathUtilityHelper.HyperbolicTangent(Network.Layers[layer].Neurons[neuron].Value);
                     }
                 }
             }

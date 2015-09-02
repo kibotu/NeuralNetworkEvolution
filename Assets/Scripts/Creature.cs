@@ -7,26 +7,26 @@ namespace Assets.Scripts
 {
     public class Creature : MonoBehaviour
     {
+        private float _previousSpeed;
         public float Angle;
         public NeuralNetwork.NeuralNetwork Brain;
         public int Fitness;
         public int Generation;
+        public int HiddenLayerCount = 250;
+        public SensoryInput Input;
+        public int LearningFactor = 0;
         public double Life;
         public double LifeCost = 10;
+        public NeuralOutput Output;
         public double ParentChance;
         public bool ShowAntenna;
+        public bool ShowBrainSuggestions;
         public Bounds Bounds { get; set; }
-
-        public int LearningFactor = 0;
-        public int HiddenLayerCount = 250;
 
         public bool IsDeath()
         {
             return Life <= 0 || gameObject == null;
         }
-
-        public SensoryInput Input;
-        public NeuralOutput Output;
 
         public Creature Live(ICollection<Food> foodSupply)
         {
@@ -35,6 +35,10 @@ namespace Assets.Scripts
                 GetComponent<SpriteRenderer>().enabled = false;
                 return this;
             }
+            Life -= LifeCost*Time.deltaTime;
+
+//            if (IsDeath())
+//                Fitness -= 10;
 
             var closestFood = GetClosestFood(foodSupply);
 
@@ -52,12 +56,6 @@ namespace Assets.Scripts
                 closestFood.SpawnIn(Bounds);
             }
 
-            Life -= LifeCost*Time.deltaTime;
-
-            if (IsDeath())
-                Fitness -= 50;
-
-           
             Input.Values = new double[4];
 
             var leftSensor = transform.position.ExtendedPoint(Angle - 45 + 90, .5f);
@@ -73,44 +71,53 @@ namespace Assets.Scripts
 
             if (closestFoodLeft > closestFoodRight)
             {
-                Input.Values[0] = closestFoodLeft + closestFoodRight;
-                Input.Values[1] = closestFoodLeft - closestFoodRight;
+                Input.Values[0] = closestFoodLeft;
+                Input.Values[1] = -closestFoodRight;
             }
             else
             {
-                Input.Values[0] = closestFoodRight - closestFoodLeft;
-                Input.Values[1] = closestFoodRight + closestFoodLeft;
+                Input.Values[0] = -closestFoodLeft;
+                Input.Values[1] = closestFoodRight;
             }
-
-//            Input.Values[0] = Mathf.Abs((float) closestFoodLeft);
-//            Input.Values[1] = -Mathf.Abs((float)closestFoodLeft);
-//            Input.Values[0] = Mathf.Clamp((float) closestFoodLeft / Bounds.min.x, -1, 1);
-//            Input.Values[1] = Mathf.Clamp((float) closestFoodRight / Bounds.min.x, -1, 1); 
-            Input.Values[2] = 0;
-            Input.Values[3] = 0;
+            Input.Values[0] /= Bounds.extents.x;
+            Input.Values[1] /= Bounds.extents.y;
 
             Output = Brain.Think(Input);
 
-            if (Output.Values[0] > Output.Values[1])
+            var angle = (float) Output.Values[0];
+            if (angle <= 0.5)
             {
-                Angle -= (float)Output.Values[0];
-                Debug.DrawLine(transform.position, leftSensor, Color.blue);
+                Angle -= (1 - angle)*2;
+                if (ShowBrainSuggestions) Debug.DrawLine(transform.position, leftSensor, Color.blue);
             }
             else
             {
-                Angle += (float)Output.Values[1];
-                Debug.DrawLine(transform.position, rightSensor, Color.red);
+                Angle += angle*2;
+                if (ShowBrainSuggestions) Debug.DrawLine(transform.position, rightSensor, Color.red);
+            }
+
+            if (Output.Values[0] > Output.Values[1])
+            {
+                Angle -= (float) Output.Values[0];
+                if (ShowBrainSuggestions) Debug.DrawLine(transform.position, leftSensor, Color.blue);
+            }
+            else
+            {
+                Angle += (float) Output.Values[1];
+                if (ShowBrainSuggestions) Debug.DrawLine(transform.position, rightSensor, Color.red);
             }
 
             // rotate
             transform.rotation = Quaternion.Euler(new Vector3(0, 0, Angle));
 
             // draw speed 
-            var speed = (float)Output.Values[2];
-            Debug.DrawLine(transform.position, transform.position.ExtendedPoint(Angle+90, speed), Color.black);
-            
+            var speed = (float) Output.Values[1]*Time.deltaTime * 2;
+            if (ShowBrainSuggestions)
+                Debug.DrawLine(transform.position, transform.position.ExtendedPoint(Angle + 90, speed), Color.black);
+
             // move
-            transform.position += transform.up * speed * Time.deltaTime;
+            _previousSpeed = speed;
+            transform.position += transform.up*Mathf.Abs(_previousSpeed);
 
             return this;
         }
@@ -137,23 +144,23 @@ namespace Assets.Scripts
             pos.z = Mathf.Clamp(transform.position.z, Bounds.min.z, Bounds.max.z);
             transform.position = pos;
         }
-        
+
         public Creature SpawnIn(Bounds bounds, int generation)
         {
+            Brain = new NeuralNetwork.NeuralNetwork(LearningFactor, 4, HiddenLayerCount, 2);
             name = "Create [" + generation + "]";
-            Brain = new NeuralNetwork.NeuralNetwork(LearningFactor, 4, HiddenLayerCount, 3);
             Generation = generation;
             transform.SetParent(GameObject.Find("Population").transform, true);
             Bounds = bounds;
-            Init(); 
-            transform.position = new Vector2(Random.Range(Bounds.min.x, Bounds.max.x),Random.Range(Bounds.min.y, Bounds.max.y));
+            Init();
+            transform.position = new Vector2(Random.Range(Bounds.min.x, Bounds.max.x),
+                Random.Range(Bounds.min.y, Bounds.max.y));
             return this;
         }
 
         public void Init()
         {
             transform.rotation = Quaternion.Euler(new Vector3(0, 0, Angle));
-          
             GetComponent<SpriteRenderer>().enabled = true;
             Life = 100;
             Fitness = 0;
