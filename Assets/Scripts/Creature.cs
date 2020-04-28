@@ -1,13 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Assets.Scripts.NeuralNetwork;
 using Assets.Scripts.Utils;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Assets.Scripts
 {
     public class Creature : MonoBehaviour
     {
-        private float _previousSpeed;
+        public float previousSpeed;
         public float Angle;
         public NeuralNetwork.NeuralNetwork Brain;
         public int Fitness;
@@ -35,10 +37,11 @@ namespace Assets.Scripts
                 GetComponent<SpriteRenderer>().enabled = false;
                 return this;
             }
-            Life -= LifeCost*Time.deltaTime;
 
-//            if (IsDeath())
-//                Fitness -= 10;
+            Life -= LifeCost * Time.deltaTime;
+
+            if (IsDeath())
+                Fitness -= 10;
 
             var closestFood = GetClosestFood(foodSupply);
 
@@ -79,6 +82,7 @@ namespace Assets.Scripts
                 Input.Values[0] = -closestFoodLeft;
                 Input.Values[1] = closestFoodRight;
             }
+
             Input.Values[0] /= Bounds.extents.x;
             Input.Values[1] /= Bounds.extents.y;
 
@@ -88,12 +92,12 @@ namespace Assets.Scripts
 //            Angle += angle*2
             if (angle <= 0.5)
             {
-                Angle -= (1 - angle)*2;
+                Angle -= (1 - angle) * 2;
                 if (ShowBrainSuggestions) Debug.DrawLine(transform.position, leftSensor, Color.blue);
             }
             else
             {
-                Angle += angle*2;
+                Angle += angle * 2;
                 if (ShowBrainSuggestions) Debug.DrawLine(transform.position, rightSensor, Color.red);
             }
 
@@ -112,13 +116,17 @@ namespace Assets.Scripts
             transform.rotation = Quaternion.Euler(new Vector3(0, 0, Angle));
 
             // draw speed 
-            var speed = (float) Output.Values[1]*Time.deltaTime * 2;
+            var speed = (float) Math.Abs(Output.Values[1]) ;
             if (ShowBrainSuggestions)
-                Debug.DrawLine(transform.position, transform.position.ExtendedPoint(Angle + 90, speed), Color.black);
+            {
+                var start = transform.position;
+                var end = start.ExtendedPoint(Angle + 90,  speed);
+                Debug.DrawLine(start, end, Color.black);
+            }
 
             // move
-            _previousSpeed = speed;
-            transform.position += transform.up*Mathf.Abs(_previousSpeed);
+            previousSpeed = speed;
+            transform.position += transform.up * (speed * Time.deltaTime * 5);
 
             return this;
         }
@@ -134,6 +142,7 @@ namespace Assets.Scripts
                 closestFood = food;
                 closest = distance;
             }
+
             return closestFood;
         }
 
