@@ -116,17 +116,17 @@ namespace Assets.Scripts
             transform.rotation = Quaternion.Euler(new Vector3(0, 0, Angle));
 
             // draw speed 
-            var speed = (float) Math.Abs(Output.Values[1]) ;
+            var speed = (float) Math.Abs(Output.Values[1]) * 5 * Time.deltaTime;
             if (ShowBrainSuggestions)
             {
                 var start = transform.position;
-                var end = start.ExtendedPoint(Angle + 90,  speed);
+                var end = start.ExtendedPoint(Angle + 90, speed * 10f);
                 Debug.DrawLine(start, end, Color.black);
             }
 
             // move
             previousSpeed = speed;
-            transform.position += transform.up * (speed * Time.deltaTime * 5);
+            transform.position += transform.up * (speed);
 
             return this;
         }

@@ -246,7 +246,7 @@ MonoBehaviour:
     HighestFitness: 0
     MutationChance: 0
     NextGeneration: []
-  InitialFoodSupply: 100
+  InitialFoodSupply: 150
   InitialPopulation: 100
   SecondsPerTick: 0
   TicksPerGernations: 1000
