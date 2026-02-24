@@ -1,77 +1,100 @@
-# Neural Network Evolution
+# Neuroevolution
 
-Training neural networks using evolutionary algorithms. Creatures learn to find food through natural selection -- no backpropagation, no gradient descent, just survival of the fittest.
+Training neural networks without training neural networks.
 
-Originally a Unity project, now ported to browser-based WebGL with Three.js.
+No backpropagation. No gradient descent. No loss function. Just little bug creatures trying not to starve — and a genetic algorithm making sure the dumb ones don't reproduce.
 
-![Screenshot](https://raw.githubusercontent.com/kibotu/NeuralNetworkEvolution/master/screenshot.png)
+**[Live Demo](https://kibotu.github.io/NeuralNetworkEvolution/)**
 
-## Quick Start
+![Demo](docs/clip.gif)
 
-```bash
-./run_simulation.sh
+## What's happening here?
+
+Each creature has a tiny feed-forward neural network for a brain. It takes in sensory inputs (where's the food? how close is the wall? how fast am I going?) and outputs two decisions: how much to turn and how fast to move.
+
+Generation 1 is pure chaos — random weights, random movement, random death. But the creatures that *happen* to stumble toward food survive longer and score higher fitness. A genetic algorithm then breeds the next generation from the winners: their neural network weights get mixed, slightly mutated, and handed to fresh creatures.
+
+By generation 5–10, they start reliably navigating toward food. Nobody taught them. They figured it out through trial, error, and natural selection.
+
+It's evolution, speedrun.
+
+## The neural network
+
+```
+Inputs (6)              Hidden Layer (configurable)          Outputs (2)
+┌──────────────────┐    ┌──────────────────────────┐    ┌─────────────────┐
+│ Relative angle   │───▶│                          │───▶│ Rotation rate   │
+│ Food proximity   │───▶│   tanh-activated neurons │───▶│ Movement speed  │
+│ Angle cosine     │───▶│   (default: 10)          │    └─────────────────┘
+│ Antenna diff     │───▶│                          │
+│ Wall proximity X │───▶│                          │
+│ Wall proximity Y │───▶│                          │
+└──────────────────┘    └──────────────────────────┘
 ```
 
-Or manually: `python3 -m http.server 8000` and open http://localhost:8000.
+Each creature has two antenna sensors at ±25° from its forward direction. The difference in distance from each antenna tip to the nearest food gives the network a sense of "food is to my left/right." Combined with the relative angle and proximity, the network has enough information to steer — if the weights are right.
 
-## How It Works
+The weights start random. Evolution makes them right.
 
-Each creature has a small neural network brain (4 inputs, 250 hidden neurons, 2 outputs) that controls its rotation and speed. Two antenna sensors at +/-45 degrees detect the nearest food source.
+## The genetic algorithm
 
-Creatures start with 100 health, lose 10/sec, gain 50 per food collected. At 0 health, they die.
+After each generation (configurable duration, default 20s):
 
-After each generation (configurable duration), a genetic algorithm selects the best performers:
-- **Elitism**: Top 40% survive unchanged
-- **Crossover**: Single-point crossover of neural network weights
-- **Mutation**: 1% chance of random weight modification
+1. **Fitness scoring** — creatures earn points for eating food and staying close to food sources. Wall collisions and dying early are penalized.
+2. **Tournament selection** — pick 3 random creatures, keep the fittest. Repeat.
+3. **Elitism** — the top performers survive to the next generation unchanged (their brains were working, don't mess with them).
+4. **Crossover** — two parent creatures' weight arrays are spliced at a random point to produce a child. Half mom's brain, half dad's brain. What could go wrong?
+5. **Mutation** — small random perturbations to weights. Keeps the gene pool from converging too early and getting stuck in local optima.
 
-By generation 5-10, creatures reliably navigate toward food.
+The crossover/elitism ratio and mutation rate are all tunable via sliders.
 
-## GPT-Trained Variant
+## Running it
 
-The `gpt-insects/` folder contains an alternative approach: instead of evolutionary algorithms, a micro GPT transformer (~4K params, 1-layer, 4-head, 16-dim) learns to control the insects via behavioral cloning on successful trajectories.
+It's a static site. Serve it however you like:
 
 ```bash
-./gpt-insects/run.sh
+python3 -m http.server 8000
 ```
 
-The simulation cycles between SIMULATING (insects act using the current GPT weights) and TRAINING (top trajectories train the model via next-token prediction).
+Then open [http://localhost:8000](http://localhost:8000).
+
+Or just visit the **[live demo on GitHub Pages](https://kibotu.github.io/NeuralNetworkEvolution/)**.
 
 ## Controls
 
-- **Pause/Resume/Restart**: Simulation flow
-- **Speed**: 0.1x to 5x
-- **Population**: 10-200 creatures
-- **Food Supply**: 10-300 items
-- **Generation Duration**: 5-120 seconds
-- **Hidden Neurons**: 50-500
-- **Mutation Rate**: 0-10%
-- **Crossover Rate**: 20-80%
+| Control | What it does |
+|---|---|
+| **Speed** | Simulation time multiplier (0.1x–10x). Crank it up to watch evolution happen faster. |
+| **Population** | Number of creatures per generation (10–200) |
+| **Food Supply** | How much food is scattered around (10–300) |
+| **Duration** | How long each generation runs before evolving (5–120s) |
+| **Hidden Neurons** | Size of the hidden layer (4–128). More neurons = more complex behavior but slower evolution. |
+| **Mutation Rate** | Chance of random weight tweaks (0–30%) |
+| **Crossover Rate** | How much of the population is bred vs. kept as-is (20–80%) |
+| **Visualization toggles** | Show target vectors, velocity, antenna sensors, rotation arcs |
 
-## Project Structure
+Click **Apply** after changing parameters to restart with new settings.
+
+## Project structure
 
 ```
-index.html                  Main application
+index.html              Entry point
+css/style.css           Styling
 js/
-  main.js                   Three.js setup and animation loop
-  World.js                  Simulation manager
-  Creature.js               Creature with neural network brain
-  Food.js                   Food spawning
-  NeuralNetwork.js          Feed-forward neural network
-  GeneticAlgorithm.js       Evolution logic
-  utils.js                  Math utilities
-  vendor/three.min.js       Three.js r128 (self-hosted)
-gpt-insects/                GPT transformer variant
+  main.js               Three.js scene, rendering, UI
+  World.js              Simulation loop and generation lifecycle
+  Creature.js           Creature behavior, sensing, movement
+  Food.js               Food spawning and collection
+  NeuralNetwork.js      Feed-forward network (think, getWeights, setWeights)
+  GeneticAlgorithm.js   Selection, crossover, mutation, elitism
+  utils.js              Math helpers (distance, tanh, random)
+  vendor/three.min.js   Three.js r128
 ```
 
-## Tech Stack
+## Tech
 
-Pure JavaScript (ES6 modules), Three.js for WebGL rendering, no other dependencies.
-
-## Contact
-
-[Jan Rabe](mailto:janrabe@kibotu.net)
+Pure JavaScript (ES6 modules) + Three.js for WebGL rendering. Zero build step, zero npm, zero bundler. Just files and a browser.
 
 ## License
 
-See [LICENSE](LICENSE) file.
+See [LICENSE](LICENSE).
