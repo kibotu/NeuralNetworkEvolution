@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Neural Network Evolution — watch creatures learn to find food through different AI approaches">
+  <meta name="theme-color" content="#0f172a">
+  <title>Neural Network Evolution</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: rgba(30, 41, 59, 0.7);
+      --border: rgba(148, 163, 184, 0.12);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --primary: #3b82f6;
+      --accent: #10b981;
+      --radius: 20px;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      background-image:
+        radial-gradient(at 0% 0%, rgba(56, 189, 248, .15), transparent 50%),
+        radial-gradient(at 100% 100%, rgba(236, 72, 153, .15), transparent 50%);
+      background-attachment: fixed;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 720px; width: 100%; text-align: center; }
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: .5rem;
+      letter-spacing: -.03em;
+    }
+    .subtitle { color: var(--muted); font-size: 1.15rem; margin-bottom: 2.5rem; }
+    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    @media (max-width: 600px) { .cards { grid-template-columns: 1fr; } h1 { font-size: 2rem; } }
+    a.card {
+      display: flex; flex-direction: column; align-items: flex-start;
+      background: var(--card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem 1.5rem;
+      text-decoration: none;
+      color: var(--text);
+      transition: transform .2s, border-color .25s, box-shadow .25s;
+    }
+    a.card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(59, 130, 246, .35);
+      box-shadow: 0 0 30px rgba(59, 130, 246, .12);
+    }
+    .card .tag {
+      display: inline-block;
+      font-size: .7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+    .tag-ga { background: rgba(59, 130, 246, .18); color: var(--primary); }
+    .tag-gpt { background: rgba(16, 185, 129, .18); color: var(--accent); }
+    .card h2 { font-size: 1.3rem; font-weight: 600; margin-bottom: .5rem; }
+    .card p { color: var(--muted); font-size: .92rem; line-height: 1.55; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Neural Network Evolution</h1>
+    <p class="subtitle">Watch creatures learn to find food through different AI approaches</p>
+    <div class="cards">
+      <a class="card" href="neuronal-network-evolution/">
+        <span class="tag tag-ga">Genetic Algorithm</span>
+        <h2>Neuroevolution</h2>
+        <p>Feed-forward neural network brains evolved via selection, crossover, and mutation. Each creature has its own brain.</p>
+      </a>
+      <a class="card" href="gpt-insects/">
+        <span class="tag tag-gpt">Transformer</span>
+        <h2>GPT-Trained Insects</h2>
+        <p>A shared Micro-GPT transformer learns from the best trajectories via behavioural cloning. Gradient-based training.</p>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

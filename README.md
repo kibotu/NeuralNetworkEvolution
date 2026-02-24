@@ -1,40 +1,77 @@
-Neural Network Evolution
-============================================
+# Neural Network Evolution
 
-### Introduction
+Training neural networks using evolutionary algorithms. Creatures learn to find food through natural selection -- no backpropagation, no gradient descent, just survival of the fittest.
 
-Training a neural network using evolutionary algorithm as fitness indicator. 
+Originally a Unity project, now ported to browser-based WebGL with Three.js.
 
 ![Screenshot](https://raw.githubusercontent.com/kibotu/NeuralNetworkEvolution/master/screenshot.png)
 
-![Screenshot](https://raw.githubusercontent.com/kibotu/NeuralNetworkEvolution/master/screenshot2.png)
+## Quick Start
 
-### Creatures
+```bash
+./run_simulation.sh
+```
 
-Each creature has 2 inputs and 2 outputs. 
+Or manually: `python3 -m http.server 8000` and open http://localhost:8000.
 
-As input: 2 antennas which compute the *directional angle* towards the closest food source and forwards it to the brain (neural network).
+## How It Works
 
-As output it computes the rotation *angle* and also the *speed* for the next turn. Note: a creature can only rotate few degrees each turn. 
+Each creature has a small neural network brain (4 inputs, 250 hidden neurons, 2 outputs) that controls its rotation and speed. Two antenna sensors at +/-45 degrees detect the nearest food source.
 
-# Simulation
+Creatures start with 100 health, lose 10/sec, gain 50 per food collected. At 0 health, they die.
 
-The simulation runs for 10 seconds with 150 food sources and an initial population of 100 creature.
+After each generation (configurable duration), a genetic algorithm selects the best performers:
+- **Elitism**: Top 40% survive unchanged
+- **Crossover**: Single-point crossover of neural network weights
+- **Mutation**: 1% chance of random weight modification
 
-Each creature starts with 100 life and loses 10 each second. However if it collects a food source it gains 10 life. 
+By generation 5-10, creatures reliably navigate toward food.
 
-At 0 life it dies. 
+## GPT-Trained Variant
 
-After the 10 seconds the 10% best and 10% worst performing creatures are put into a pool and are used as parents. 
+The `gpt-insects/` folder contains an alternative approach: instead of evolutionary algorithms, a micro GPT transformer (~4K params, 1-layer, 4-head, 16-dim) learns to control the insects via behavioral cloning on successful trajectories.
 
-The population gets filled up back to the initial population by creating children. 
+```bash
+./gpt-insects/run.sh
+```
 
-A child is created by two randomly selected parents and mixing their brains and therefore passing their traits to the next generation. 
+The simulation cycles between SIMULATING (insects act using the current GPT weights) and TRAINING (top trajectories train the model via next-token prediction).
 
-The simulation is then run for a few generations. Usually after 5-10 generations the children have learned to collect food. 
+## Controls
 
+- **Pause/Resume/Restart**: Simulation flow
+- **Speed**: 0.1x to 5x
+- **Population**: 10-200 creatures
+- **Food Supply**: 10-300 items
+- **Generation Duration**: 5-120 seconds
+- **Hidden Neurons**: 50-500
+- **Mutation Rate**: 0-10%
+- **Crossover Rate**: 20-80%
 
-### Unity3D 2019.3.11f1
+## Project Structure
 
-### Contact
-* [Jan Rabe](mailto:janrabe@kibotu.net)
+```
+index.html                  Main application
+js/
+  main.js                   Three.js setup and animation loop
+  World.js                  Simulation manager
+  Creature.js               Creature with neural network brain
+  Food.js                   Food spawning
+  NeuralNetwork.js          Feed-forward neural network
+  GeneticAlgorithm.js       Evolution logic
+  utils.js                  Math utilities
+  vendor/three.min.js       Three.js r128 (self-hosted)
+gpt-insects/                GPT transformer variant
+```
+
+## Tech Stack
+
+Pure JavaScript (ES6 modules), Three.js for WebGL rendering, no other dependencies.
+
+## Contact
+
+[Jan Rabe](mailto:janrabe@kibotu.net)
+
+## License
+
+See [LICENSE](LICENSE) file.

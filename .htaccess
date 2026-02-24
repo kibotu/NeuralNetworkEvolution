@@ -1,0 +1,21 @@
+# Disable caching for all files
+<IfModule mod_headers.c>
+    # Disable caching
+    Header set Cache-Control "no-cache, no-store, must-revalidate, max-age=0"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+</IfModule>
+
+<IfModule mod_expires.c>
+    # Disable expires
+    ExpiresActive Off
+</IfModule>
+
+# Prevent browser caching
+<FilesMatch "\.(html|htm|js|css|json)$">
+    <IfModule mod_headers.c>
+        Header set Cache-Control "no-cache, no-store, must-revalidate, max-age=0, pre-check=0, post-check=0"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </IfModule>
+</FilesMatch>

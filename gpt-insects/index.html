@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="description" content="Insects learn to find food using a micro GPT transformer trained with behavioral cloning">
+  <meta name="theme-color" content="#0f172a">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>GPT-Trained Insects - Micro Transformer Simulation</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div id="loading" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>Initializing Micro GPT Transformer...</p>
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <h1>GPT-Trained Insects</h1>
+      <p>Insects learn to find food using a micro GPT transformer <i class="hint" data-tip="Instead of evolution, a tiny GPT (like a mini ChatGPT) watches the best insect runs and learns to copy their behavior">?</i></p>
+    </div>
+
+    <div class="main-content">
+      <div class="canvas-column">
+        <div class="canvas-container">
+          <canvas id="simulationCanvas"></canvas>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-row">
+          <div class="chart-container">
+            <canvas id="lossChart"></canvas>
+          </div>
+          <div class="chart-container">
+            <canvas id="foodChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Control Panel -->
+      <div class="control-panel">
+        <div class="panel-section">
+          <h2>Controls</h2>
+          <div class="phase-row">
+            <span class="phase-label">Phase: <i class="hint" data-tip="The simulation alternates between SIMULATING (insects move around) and TRAINING (the GPT brain learns from the best runs)">?</i></span>
+            <span id="phaseIndicator" class="phase-badge phase-idle">IDLE</span>
+          </div>
+
+          <div class="progress-container">
+            <span class="progress-label">Training: <span id="trainingProgress">-</span> <i class="hint" data-tip="Shows how far along the current training batch is. The GPT model updates its weights during this phase">?</i></span>
+            <div class="progress-bar-bg">
+              <div id="trainingProgressBar" class="progress-bar-fill"></div>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <button id="pauseBtn" class="btn btn-primary">Pause</button>
+            <button id="restartBtn" class="btn btn-secondary">Restart</button>
+          </div>
+
+          <div class="control-group">
+            <label for="speedSlider">Speed: <span id="speedValue">1.0</span>x <i class="hint" data-tip="How fast time passes. Higher = faster iterations but harder to watch the creatures">?</i></label>
+            <input type="range" id="speedSlider" min="0.1" max="5" step="0.1" value="1">
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h2>Statistics <i class="hint" data-tip="Live numbers from the current episode and training">?</i></h2>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-label">Iteration <i class="hint" data-tip="Number of simulate-then-train cycles completed. Each iteration, the GPT gets smarter">?</i></span>
+              <span class="stat-value" id="iteration">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Alive <i class="hint" data-tip="Creatures still moving. They lose energy over time and die when it hits zero">?</i></span>
+              <span class="stat-value" id="aliveCount">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Dead <i class="hint" data-tip="Creatures that ran out of energy before the episode ended">?</i></span>
+              <span class="stat-value" id="deadCount">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Food Eaten <i class="hint" data-tip="Total food collected this episode. This should increase as the GPT learns">?</i></span>
+              <span class="stat-value" id="foodEaten">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Avg Reward <i class="hint" data-tip="Average reward across all creatures. Higher = creatures are generally getting closer to food">?</i></span>
+              <span class="stat-value" id="avgReward">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Best Reward <i class="hint" data-tip="Reward of the single best creature this episode">?</i></span>
+              <span class="stat-value" id="bestReward">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Train Loss <i class="hint" data-tip="How wrong the GPT's predictions are. Lower = the model is learning the patterns better. Should decrease over time">?</i></span>
+              <span class="stat-value" id="trainingLoss">-</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Time <i class="hint" data-tip="Total elapsed simulation time">?</i></span>
+              <span class="stat-value" id="totalTime">0s</span>
+            </div>
+            <div class="stat-item full-width">
+              <span class="stat-label">GPT Parameters <i class="hint" data-tip="Total learnable numbers in the transformer brain. ~4K is tiny — real GPTs have billions!">?</i></span>
+              <span class="stat-value" id="paramCount">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h2>GPT Parameters <i class="hint" data-tip="Tweak these to change how the GPT transformer learns. Click Apply to restart with new settings">?</i></h2>
+
+          <div class="control-group">
+            <label for="worldSizeSlider">World Size: <span id="worldSizeValue">40</span> <i class="hint" data-tip="Side length of the square world. Larger = more space for insects to explore, harder to find food">?</i></label>
+            <input type="range" id="worldSizeSlider" min="10" max="100" step="5" value="40">
+          </div>
+
+          <div class="control-group">
+            <label for="populationSlider">Population: <span id="populationValue">50</span> <i class="hint" data-tip="Number of insects per episode. More = more training data for the GPT each round">?</i></label>
+            <input type="range" id="populationSlider" min="5" max="100" step="5" value="50">
+          </div>
+
+          <div class="control-group">
+            <label for="foodSlider">Food Supply: <span id="foodValue">80</span> <i class="hint" data-tip="Green dots on the map. More food = easier to learn since insects find food sooner">?</i></label>
+            <input type="range" id="foodSlider" min="5" max="200" step="5" value="80">
+          </div>
+
+          <div class="control-group">
+            <label for="durationSlider">Episode Duration (s): <span id="durationValue">20</span> <i class="hint" data-tip="How long each simulation episode runs before training starts. Longer = more data, but slower learning cycles">?</i></label>
+            <input type="range" id="durationSlider" min="3" max="60" step="1" value="20">
+          </div>
+
+          <div class="control-group">
+            <label for="trainingStepsSlider">Training Steps: <span id="trainingStepsValue">40</span> <i class="hint" data-tip="Number of gradient updates per training phase. More = deeper learning each round, but takes longer">?</i></label>
+            <input type="range" id="trainingStepsSlider" min="5" max="200" step="5" value="40">
+          </div>
+
+          <div class="control-group">
+            <label for="learningRateSlider">Learning Rate: <span id="learningRateValue">0.0020</span> <i class="hint" data-tip="How big each learning step is. Too high = unstable, too low = learns very slowly">?</i></label>
+            <input type="range" id="learningRateSlider" min="0.0005" max="0.05" step="0.0005" value="0.002">
+          </div>
+
+          <div class="control-group">
+            <label for="temperatureSlider">Temperature: <span id="temperatureValue">1.20</span> <i class="hint" data-tip="Controls randomness in decisions. High = more exploration (tries new things), low = more exploitation (repeats what worked)">?</i></label>
+            <input type="range" id="temperatureSlider" min="0.1" max="2.0" step="0.05" value="1.2">
+          </div>
+
+          <div class="control-group">
+            <label for="topKSlider">Top-K% Trajectories: <span id="topKValue">25</span>% <i class="hint" data-tip="Only the best X% of insect runs are used for training. Lower = pickier, learns from only the best behavior">?</i></label>
+            <input type="range" id="topKSlider" min="10" max="100" step="5" value="25">
+          </div>
+
+          <div class="control-group">
+            <button id="applyBtn" class="btn btn-primary">Apply &amp; Restart</button>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h2>Visualization <i class="hint" data-tip="Toggle debug overlays to see what the creatures sense and decide">?</i></h2>
+          <div class="control-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="showTargetVectors">
+              <span>Show Target Vectors (Red) <i class="hint" data-tip="Red lines from each creature toward the nearest food">?</i></span>
+            </label>
+          </div>
+          <div class="control-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="showAntennaVectors">
+              <span>Show Antenna Vectors (Yellow) <i class="hint" data-tip="Yellow lines showing the two antenna sensors and their line-of-sight to food">?</i></span>
+            </label>
+          </div>
+          <div class="control-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="showAttention">
+              <span>Show Attention (Experimental) <i class="hint" data-tip="Visualizes which tokens the GPT is paying attention to — similar to how ChatGPT focuses on important words">?</i></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h2>About</h2>
+          <p class="info-text">
+            A micro GPT transformer (~4K params) learns to control insects.
+            Sensor readings are tokenized and fed as sequences.
+            After each simulation episode, the best trajectories are used
+            to train the model via next-token prediction (behavioral cloning).
+            Architecture: 1-layer, 4-head, 16-dim transformer with RMSNorm and ReLU&sup2;.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Iteration History -->
+    <div class="generation-history">
+      <h2>Iteration History <i class="hint" data-tip="A log of each simulate → train cycle. Watch Food and Avg Reward climb as the GPT improves!">?</i></h2>
+      <div class="table-container">
+        <table id="iterationTable">
+          <thead>
+            <tr>
+              <th>Iter</th>
+              <th>Food</th>
+              <th>Avg Reward</th>
+              <th>Best Reward</th>
+              <th>Survivors</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody id="iterationTableBody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/vendor/three.min.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+---
+description: Avoid over-documentation and centralize documentation in main README.md
+alwaysApply: true
+---
+
+# Documentation Standards
+
+## Core Principle
+
+Avoid over-documentation. Keep documentation centralized in the main `README.md` file.
+
+## Guidelines
+
+- **No redundant documentation**: Don't create multiple README files or documentation files throughout the codebase
+- **Single source of truth**: All project documentation should live in the main `README.md` at the project root
+- **No documentation files**: Don't create separate `.md` files for features, components, or modules unless absolutely necessary
+
+## What to Document
+
+✅ **DO document in main README.md:**
+- Project overview and purpose
+- Setup and installation instructions
+- Configuration requirements
+- API endpoints and usage
+- Deployment instructions
+
+❌ **DON'T create:**
+- Multiple README files in subdirectories
+- Separate documentation files for each feature
+- Excessive inline comments explaining obvious code
+- Changelog files (use git history instead)
+- Architecture documents (unless project is highly complex)
+
+## Code Comments
+
+Only add comments when:
+- The logic is non-obvious or complex
+- There's a specific reason for an implementation choice
+- You're documenting a workaround or known limitation
+
